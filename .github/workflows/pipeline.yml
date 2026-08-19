@@ -36,4 +36,3 @@ jobs:
       - name: Finalizar pipeline
         run: |
           echo "Pipeline ejecutado correctamente."
-          exit 1 # ERROR INTENCIONAL PARA LA PARTE 8
