@@ -1,4 +1,4 @@
-name: Primer Pipeline CI
+name: CI Pipeline con Pruebas
 
 on:
   push:
@@ -9,30 +9,38 @@ on:
       - main
 
 jobs:
-  hello-ci:
-    name: Hello CI
+  build-and-test:
+    name: Build & Test
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Mostrar información del entorno
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
         run: |
-          echo "================================"
-          echo "      PRIMER PIPELINE CI"
-          echo "================================"
-          echo "Repositorio: ${{ github.repository }}"
-          echo "Rama: ${{ github.ref_name }}"
-          echo "Commit: ${{ github.sha }}"
-          echo "================================"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Mostrar fecha y hora
-        run: date
-
-      - name: Mostrar versión de Git
-        run: git --version
-
-      - name: Finalizar pipeline
+      - name: Run tests with coverage
         run: |
-          echo "Pipeline ejecutado correctamente."
+          pytest --junitxml=report.xml --cov=app --cov-report=xml
+
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: report.xml
+
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
